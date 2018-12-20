@@ -9,7 +9,7 @@
 
 The purpose of this challenge is to demonstrate how you:
 
-* write and structure a simple Backend applications in an appropriate language of your choice
+* write and structure a simple backend application in an appropriate language of your choice
 * parse and transform streamed telemetry data
 * deliver a component to integrate into a stack of technologies
 
@@ -25,7 +25,7 @@ Live data from a formula 1 race has been recorded and streamed into our system. 
 
 ## Challenge
 
-Raw telemetry data is currently arriving via MQTT. A basic front-end application has been developed to visualize cars going around a track. It can also display an event stream and car status information such as speed and position, but currently it is not receiving this information.
+Raw telemetry data is arriving via MQTT. A basic front-end application has been developed to visualize cars going around a track. It can also display an event stream and car status information such as speed and position, but currently it is not receiving this information.
 
 Please develop a data processing application which subscribes to the MQTT broker which we have provided and consumes data from the following MQTT topics:
 
@@ -102,3 +102,19 @@ All these topics will then be forwarded via a gateway-like MQTT to Web Sockets s
 ## Architecture
 
 ![Components](./components.svg)
+
+## Getting started
+
+Start all components:
+
+```console
+$ docker-compose pull
+$ docker-compose up -d
+Creating network "mat-coding-challenge_default" with the default driver
+Creating broker ... done
+Creating source_gps        ... done
+Creating mqtt-to-websocket ... done
+Creating webapp            ... done
+```
+
+Open (http://localhost:8084)
