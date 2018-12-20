@@ -118,3 +118,12 @@ Creating webapp            ... done
 ```
 
 Open (http://localhost:8084)
+
+Test the setup with `mosquitto_pub` or a similar MQTT client:
+
+```console
+$ mosquitto_pub -t events -f examples/event.json
+$ mosquitto_pub -t carStatus -f examples/status.json
+```
+
+You should now see a car's position and an event in the webapp.
