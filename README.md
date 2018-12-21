@@ -21,7 +21,7 @@ If you are already familiar with the underlying technologies we hope that it won
 
 ## Scenario
 
-Live data from a formula 1 race has been recorded and streamed into our system. We want to use that data in order to engage fans by providing a live visualization.
+Live data from a Formula 1 race has been recorded and streamed into our system. We want to use that data in order to engage fans by providing a live visualization.
 
 ## Challenge
 
