@@ -14,6 +14,7 @@ The purpose of this challenge is for you to demonstrate
   * a suitable storage medium (your data store)
   * the MQTT data archiver you wrote in an appropriate language of your choice
   * any additional service you think is appropriate for such a platform
+* A public cloud deployment plan
 
 Feel free to use any libraries, frameworks or dependencies you want in order to achieve the task.
 
@@ -30,7 +31,7 @@ Real-time data from a Formula 1 race has been recorded and streamed into our sys
 Raw telemetry data is arriving via MQTT. A basic front-end application has been developed to visualise F1 cars going around a track. It can also display an event stream and car status information such as speed and position, but currently it is not receiving this information.
 
 Please develop a data storage application which subscribes to the provided MQTT broker and consumes data from the following MQTT topic with the format shown and stores them to a meaningful medium.
-Additionally please provide on the README file a strategy of deploying this solution to the cloud.
+Additionally please provide on the README file a strategy of deploying this solution to the public cloud provider of your choice.
 
 * **carCoordinates**
 
