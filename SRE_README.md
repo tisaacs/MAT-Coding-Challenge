@@ -8,9 +8,12 @@
 ## Introduction
 
 The purpose of this challenge is for you to demonstrate
-* write and structure a simple backend application in an appropriate language of your choice
-* parse and transform streamed telemetry data
-* deliver a component to integrate into a stack of technologies
+* Document how to run and test your deployment.
+* The development of a MQTT client that subscribes to telemetry, receives the data, and stores them in a data store.
+* Configuration Management code (e.g. Puppet/Chef/Ansible) and/or Dockerfile(s) or equivalent code that deploys:
+  * a suitable storage medium (your data store)
+  * the MQTT data archiver you wrote in an appropriate language of your choice
+  * any additional service you think is appropriate for such a platform
 
 Feel free to use any libraries, frameworks or dependencies you want in order to achieve the task.
 
@@ -26,7 +29,8 @@ Real-time data from a Formula 1 race has been recorded and streamed into our sys
 
 Raw telemetry data is arriving via MQTT. A basic front-end application has been developed to visualise F1 cars going around a track. It can also display an event stream and car status information such as speed and position, but currently it is not receiving this information.
 
-Please develop a data processing application which subscribes to the provided MQTT broker and consumes data from the following MQTT topic with the format shown:
+Please develop a data storage application which subscribes to the provided MQTT broker and consumes data from the following MQTT topic with the format shown and stores them to a meaningful medium.
+Additionally please provide on the README file a strategy of deploying this solution to the cloud.
 
 * **carCoordinates**
 
