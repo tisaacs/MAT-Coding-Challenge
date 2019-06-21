@@ -1,11 +1,15 @@
+from datetime import datetime
+from unittest import mock
+
 import pytest
 from context import telemetry
-from datetime import datetime
 from telemetry.car import Car
+from telemetry.track_lookup import TrackLookup
 
 
-def test_update_speed():
-    car = Car(1)
+@mock.patch('telemetry.track_lookup.TrackLookup')
+def test_update(track_lookup_mock):
+    car = Car(1, track_lookup_mock)
 
     json_1 = {
         "timestamp": 1541693114862,
@@ -25,21 +29,27 @@ def test_update_speed():
         }
     }
 
-    car.update_speed(json_1)
+    track_lookup_mock.get_track_percentage.return_value = 0.1
+
+    car.update(json_1)
 
     assert car.coordinates == (51.349937311969725, -0.544958142167281)
     assert car.timestamp == datetime(2018, 11, 8, 16, 5, 14, 862000)
+    assert car.lap_percentage == 0.1
 
-    car.update_speed(json_2)
+    track_lookup_mock.get_track_percentage.return_value = 0.2
+
+    car.update(json_2)
 
     assert car.coordinates == (51.359937311969725, -0.544958142167281)
     assert car.timestamp == datetime(2018, 11, 8, 16, 5, 15, 862000)
+    assert car.lap_percentage == 0.2
 
     assert round(car.speed_metres_per_second) == 1113
 
 
 def test_should_raise_exception_if_given_incorrect_data():
-    car = Car(1)
+    car = Car(1, None)
 
     json = {
         "timestamp": 1541693114862,
@@ -51,4 +61,4 @@ def test_should_raise_exception_if_given_incorrect_data():
     }
 
     with pytest.raises(ValueError):
-        car.update_speed(json)
+        car.update(json)

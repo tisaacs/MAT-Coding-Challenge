@@ -4,7 +4,8 @@ from scipy import spatial
 
 class TrackLookup():
     def __init__(self, track_coordinates_path):
-        self.__build_lookup(track_coordinates_path)
+        if track_coordinates_path:
+            self.__build_lookup(track_coordinates_path)
 
     def get_track_percentage(self, coordinates):
         result = self.tree.query(coordinates)

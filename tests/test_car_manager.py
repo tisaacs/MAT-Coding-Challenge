@@ -1,3 +1,5 @@
+from unittest import mock
+
 from telemetry.car import Car
 from telemetry.car_manager import CarManager
 
@@ -9,17 +11,19 @@ def speed_update_callback(car):
     updated_car_indexes.append(car.index)
 
 
-def test_should_create_car_objects():
-    manager = CarManager(5, None)
+@mock.patch('telemetry.track_lookup.TrackLookup')
+def test_should_create_car_objects(track_lookup_mock):
+    manager = CarManager(5, None, track_lookup_mock)
     assert len(manager.cars) == 5
 
     for i in range(5):
         assert manager.cars[i].index == i
 
 
-def test_should_update_speed_for_cars():
+@mock.patch('telemetry.track_lookup.TrackLookup')
+def test_should_update_cars(track_lookup_mock):
 
-    manager = CarManager(2, speed_update_callback)
+    manager = CarManager(2, speed_update_callback, track_lookup_mock)
 
     car_1_json_1 = {
         "timestamp": 1541693114862,
