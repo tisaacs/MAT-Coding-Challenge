@@ -5,6 +5,38 @@
 * [docker](https://docs.docker.com/)
 * [docker-compose](https://docs.docker.com/compose/)
 
+## Setup Notes
+
+1. Create a new virtual environment:
+
+```
+python3 -m venv venv
+```
+
+1. Activate the new virtual environment:
+
+```
+source venv/bin/activate
+```
+
+1. Install dependencies:
+
+```
+pip install -r requirements.txt
+```
+
+## Design
+
+- Need something that calculates speed from two position events.
+
+- Need something to track positions.
+
+- We also need something to monitor the positions and detect when one car overtakes another.
+
+## Implementation Notes
+
+- Code always assumes we get updates, it will break if a car disconnects/doesn't send telemetry.
+
 ## Introduction
 
 The purpose of this challenge is for you to demonstrate
