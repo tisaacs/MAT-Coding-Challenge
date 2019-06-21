@@ -18,7 +18,7 @@ def setup_function():
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
 def test_should_create_car_objects(track_lookup_mock):
-    manager = CarManager(5, track_lookup_mock, None)
+    manager = CarManager(5, track_lookup_mock)
     assert len(manager.cars) == 5
 
     for i in range(5):
@@ -28,7 +28,8 @@ def test_should_create_car_objects(track_lookup_mock):
 @mock.patch('telemetry.track_lookup.TrackLookup')
 def test_should_update_car_speeds(track_lookup_mock):
 
-    manager = CarManager(2, track_lookup_mock, event_callback)
+    manager = CarManager(2, track_lookup_mock)
+    manager.subscribe_to_car_status_events(event_callback)
 
     track_lookup_mock.get_track_percentage.return_value = 0
 
@@ -91,7 +92,8 @@ def test_should_update_car_speeds(track_lookup_mock):
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
 def test_should_update_car_positions(track_lookup_mock):
-    manager = CarManager(3, track_lookup_mock, event_callback)
+    manager = CarManager(3, track_lookup_mock)
+    manager.subscribe_to_car_status_events(event_callback)
 
     for c in manager.cars:
         c.timestamp = datetime.utcfromtimestamp(1541693115862 / 1000)

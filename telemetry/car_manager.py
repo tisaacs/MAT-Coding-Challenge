@@ -7,9 +7,9 @@ UPDATE_TOLERANCE = timedelta(milliseconds=300)  # Processes position values when
 
 
 class CarManager():
-    def __init__(self, number_of_cars, track_lookup, car_status_event_callback):
+    def __init__(self, number_of_cars, track_lookup):
         self.cars = []
-        self.car_status_event_callback = car_status_event_callback
+        self.__car_status_event_callbacks = []
 
         for i in range(number_of_cars):
             car = Car(i, track_lookup)
@@ -20,8 +20,7 @@ class CarManager():
         index = json['carIndex']
 
         self.cars[index].update(json)
-        event = self.__get_speed_event(self.cars[index])
-        self.car_status_event_callback(event)
+        self.__raise_speed_event(self.cars[index])
 
         received_all_updates = all(x.timestamp and x.timestamp - self.cars[0].timestamp < UPDATE_TOLERANCE
                                    for x in self.cars)
@@ -35,21 +34,31 @@ class CarManager():
             car.position = i + 1
 
             if car.position != car.last_position:
-                event = self.__get_position_event(car)
-                self.car_status_event_callback(event)
+                self.__raise_position_event(car)
 
-    def __get_speed_event(self, car):
-        return {
+    def subscribe_to_car_status_events(self, callback):
+        self.__car_status_event_callbacks.append(callback)
+
+    def __raise_speed_event(self, car):
+        event = {
             'timestamp': helper.get_timestamp_in_correct_format(car.timestamp),
             'carIndex': car.index,
             'type': 'SPEED',
             'value': car.speed_metres_per_second,
         }
 
-    def __get_position_event(self, car):
-        return {
+        self.__raise_event(event)
+
+    def __raise_position_event(self, car):
+        event = {
             'timestamp': helper.get_timestamp_in_correct_format(car.timestamp),
             'carIndex': car.index,
             'type': 'POSITION',
             'value': car.position
         }
+
+        self.__raise_event(event)
+
+    def __raise_event(self, event):
+        for c in self.__car_status_event_callbacks:
+            c(event)
