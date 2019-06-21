@@ -37,6 +37,8 @@ pip install -r requirements.txt
 
 - Code always assumes we get updates, it will break if a car disconnects/doesn't send telemetry.
 
+- Had to build quick script to convert geojson to track coordinates, taking in list of way ids. TODO write proper section on this.
+
 ## Introduction
 
 The purpose of this challenge is for you to demonstrate
