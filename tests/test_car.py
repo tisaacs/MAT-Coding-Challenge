@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import isclose
 from unittest import mock
 
 import pytest
@@ -35,7 +36,7 @@ def test_update(track_lookup_mock):
 
     assert car.coordinates == (51.349937311969725, -0.544958142167281)
     assert car.timestamp == datetime(2018, 11, 8, 16, 5, 14, 862000)
-    assert car.lap_percentage == 0.1
+    assert car.progress == 0.1
 
     track_lookup_mock.get_track_percentage.return_value = 0.2
 
@@ -43,7 +44,7 @@ def test_update(track_lookup_mock):
 
     assert car.coordinates == (51.359937311969725, -0.544958142167281)
     assert car.timestamp == datetime(2018, 11, 8, 16, 5, 15, 862000)
-    assert car.lap_percentage == 0.2
+    assert isclose(car.progress, 0.3)
 
     assert round(car.speed_metres_per_second) == 1113
 

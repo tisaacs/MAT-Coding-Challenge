@@ -8,13 +8,13 @@ class Car():
         self.index = car_index
         self.coordinates = (0, 0)
         self.speed_metres_per_second = 0
-        self.lap_percentage = 0
+        self.progress = 0
         self.position = 0
         self.timestamp = None
         self.last_coordinates = (0, 0)
         self.last_position = 0
         self.last_timestamp = None
-        self.track_lookup = track_lookup
+        self.__track_lookup = track_lookup
 
     def update(self, json):
         if json['carIndex'] != self.index:
@@ -26,7 +26,7 @@ class Car():
         self.coordinates = (json['location']['lat'], json['location']['long'])
         self.timestamp = datetime.utcfromtimestamp(json['timestamp'] / 1000.0)
 
-        self.lap_percentage = self.track_lookup.get_track_percentage(self.coordinates)
+        self.progress += self.__track_lookup.get_track_percentage(self.coordinates)
 
         if self.last_timestamp == None:
             return
