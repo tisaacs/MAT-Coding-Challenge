@@ -44,6 +44,9 @@ def main():
         for c in coordinates:
             track_coordinates.append((c[1], c[0]))
 
+    # Last coordinate is equal to the first, so we have to remove it
+    track_coordinates = track_coordinates[:-1]
+
     print('Writing output file')
     with open('track_coordinates.json', 'w') as f:
         json.dump(track_coordinates, f)
