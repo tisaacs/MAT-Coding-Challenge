@@ -1,7 +1,7 @@
 from datetime import timedelta
 
-import telemetry.helper as helper
-from .car import Car
+import helper as helper
+from car import Car
 
 UPDATE_TOLERANCE = timedelta(milliseconds=300)  # Processes position values when all timestamps within this value
 
@@ -20,6 +20,7 @@ class CarManager():
         index = json['carIndex']
 
         self.cars[index].update(json)
+
         self.__raise_speed_event(self.cars[index])
 
         received_all_updates = all(x.timestamp and x.timestamp - self.cars[0].timestamp < UPDATE_TOLERANCE
@@ -60,5 +61,6 @@ class CarManager():
         self.__raise_event(event)
 
     def __raise_event(self, event):
+        print(event)
         for c in self.__car_status_event_callbacks:
             c(event)
