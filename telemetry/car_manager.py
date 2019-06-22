@@ -88,7 +88,7 @@ class CarManager():
             c(event)
 
     def __raise_overtake_event(self, car_index, overtaken_car_index, timestamp):
-        text = f'Car {car_index + 1} races ahead of Car {overtaken_car_index + 1} in a dramatic overtake.'
+        text = f'Car {car_index} races ahead of Car {overtaken_car_index} in a dramatic overtake.'
         event = {
             "timestamp": get_timestamp_in_correct_format(timestamp),
             "text": text,

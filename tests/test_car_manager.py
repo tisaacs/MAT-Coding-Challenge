@@ -186,4 +186,4 @@ def test_should_update_car_positions(track_lookup_mock):
 
     assert len(race_events) == 1
     assert race_events[0]['timestamp'] == 1541693116862
-    assert race_events[0]['text'] == 'Car 1 races ahead of Car 3 in a dramatic overtake.'
+    assert race_events[0]['text'] == 'Car 0 races ahead of Car 2 in a dramatic overtake.'
