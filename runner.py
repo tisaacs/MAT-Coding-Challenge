@@ -29,6 +29,7 @@ def main():
     client.on_message = on_message
 
     car_manager.subscribe_to_car_status_events(new_car_status_event)
+    car_manager.subscribe_to_race_events(new_race_event)
 
     mqtt_address = env['MQTT_ADDRESS']
     mqtt_keepalive = int(env['MQTT_KEEPALIVE'])
@@ -72,6 +73,12 @@ def on_message(client, userdata, msg):
 
 def new_car_status_event(event):
     topic = env['CAR_STATUS_TOPIC']
+    data = json.dumps(event)
+    client.publish(topic, data)
+
+
+def new_race_event(event):
+    topic = env['RACE_EVENT_TOPIC']
     data = json.dumps(event)
     client.publish(topic, data)
 

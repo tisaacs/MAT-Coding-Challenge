@@ -5,4 +5,4 @@ SPEED_AVERAGE_COUNT = 5
 
 # A cars position must be the same for this number - 1 of updates
 # to generate an event. Must be 3 or more.
-POSITION_COUNT = 7
+POSITION_COUNT = 15

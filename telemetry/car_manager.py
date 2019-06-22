@@ -11,6 +11,7 @@ class CarManager():
     def __init__(self, number_of_cars, track_lookup):
         self.cars = []
         self.__car_status_event_callbacks = []
+        self.__race_event_callbacks = []
 
         for i in range(number_of_cars):
             car = Car(i, track_lookup)
@@ -56,8 +57,15 @@ class CarManager():
             if all(x == car.positions[0] for x in positions_apart_from_last_item):
                 self.__raise_position_event(car)
 
+                if car.positions[0] < car.positions[-1]:
+                    overtaken_car_index = cars_ordered[i + 1].index
+                    self.__raise_overtake_event(car.index, overtaken_car_index, car.timestamps[0])
+
     def subscribe_to_car_status_events(self, callback):
         self.__car_status_event_callbacks.append(callback)
+
+    def subscribe_to_race_events(self, callback):
+        self.__race_event_callbacks.append(callback)
 
     def __raise_speed_event(self, car):
         event = {
@@ -67,7 +75,7 @@ class CarManager():
             'value': car.speed_metres_per_second,
         }
 
-        self.__raise_event(event)
+        self.__raise_car_status_event(event)
 
     def __raise_position_event(self, car):
         event = {
@@ -77,8 +85,18 @@ class CarManager():
             'value': car.positions[0]
         }
 
-        self.__raise_event(event)
+        self.__raise_car_status_event(event)
 
-    def __raise_event(self, event):
+    def __raise_car_status_event(self, event):
         for c in self.__car_status_event_callbacks:
+            c(event)
+
+    def __raise_overtake_event(self, car_index, overtaken_car_index, timestamp):
+        text = f'Car {car_index + 1} races ahead of Car {overtaken_car_index + 1} in a dramatic overtake.'
+        event = {
+            "timestamp": get_timestamp_in_correct_format(timestamp),
+            "text": text,
+        }
+
+        for c in self.__race_event_callbacks:
             c(event)

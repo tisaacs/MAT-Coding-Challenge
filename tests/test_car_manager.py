@@ -7,14 +7,18 @@ from telemetry.car_manager import CarManager
 from telemetry.car import *
 
 # So we can test when the callback is triggered
-events = []
+car_status_events = []
+race_events = []
 
-def event_callback(event):
-    events.append(event)
+def car_status_event_callback(event):
+    car_status_events.append(event)
 
+def race_event_callback(event):
+    race_events.append(event)
 
 def setup_function():
-    events.clear()
+    car_status_events.clear()
+    race_events.clear()
     # Only use 2 position values to calculate speed to simplify tests
     config.SPEED_AVERAGE_COUNT = 2
 
@@ -34,7 +38,7 @@ def test_should_create_car_objects(track_lookup_mock):
 def test_should_update_car_speeds(track_lookup_mock):
 
     manager = CarManager(2, track_lookup_mock)
-    manager.subscribe_to_car_status_events(event_callback)
+    manager.subscribe_to_car_status_events(car_status_event_callback)
 
     track_lookup_mock.get_track_percentage.return_value = 0
 
@@ -82,23 +86,24 @@ def test_should_update_car_speeds(track_lookup_mock):
     assert round(manager.cars[0].speed_metres_per_second) == 1113
     assert round(manager.cars[1].speed_metres_per_second) == 556
 
-    speed_events = [x for x in events if x['type'] == 'SPEED']
+    speed_car_status_events = [x for x in car_status_events if x['type'] == 'SPEED']
 
-    assert speed_events[2]['timestamp'] == 1541693115862
-    assert speed_events[2]['carIndex'] == 0
-    assert speed_events[2]['type'] == 'SPEED'
-    assert round(speed_events[2]['value']) == 1113
+    assert speed_car_status_events[2]['timestamp'] == 1541693115862
+    assert speed_car_status_events[2]['carIndex'] == 0
+    assert speed_car_status_events[2]['type'] == 'SPEED'
+    assert round(speed_car_status_events[2]['value']) == 1113
 
-    assert speed_events[3]['timestamp'] == 1541693116862
-    assert speed_events[3]['carIndex'] == 1
-    assert speed_events[3]['type'] == 'SPEED'
-    assert round(speed_events[3]['value']) == 556
+    assert speed_car_status_events[3]['timestamp'] == 1541693116862
+    assert speed_car_status_events[3]['carIndex'] == 1
+    assert speed_car_status_events[3]['type'] == 'SPEED'
+    assert round(speed_car_status_events[3]['value']) == 556
 
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
 def test_should_update_car_positions(track_lookup_mock):
     manager = CarManager(3, track_lookup_mock)
-    manager.subscribe_to_car_status_events(event_callback)
+    manager.subscribe_to_car_status_events(car_status_event_callback)
+    manager.subscribe_to_race_events(race_event_callback)
 
     config.POSITION_COUNT = 3
 
@@ -143,33 +148,35 @@ def test_should_update_car_positions(track_lookup_mock):
     # Check event isn't generated
     manager.update_positions()
 
-    position_events = [x for x in events if x['type'] == 'POSITION']
+    position_car_status_events = [x for x in car_status_events if x['type'] == 'POSITION']
 
-    for i in position_events:
-        print(i)
-    assert len(position_events) == 5
+    assert len(position_car_status_events) == 5
 
-    assert position_events[0]['timestamp'] == 1541693115862
-    assert position_events[0]['carIndex'] == 1
-    assert position_events[0]['type'] == 'POSITION'
-    assert position_events[0]['value'] == 1
+    assert position_car_status_events[0]['timestamp'] == 1541693115862
+    assert position_car_status_events[0]['carIndex'] == 1
+    assert position_car_status_events[0]['type'] == 'POSITION'
+    assert position_car_status_events[0]['value'] == 1
 
-    assert position_events[1]['timestamp'] == 1541693115862
-    assert position_events[1]['carIndex'] == 2
-    assert position_events[1]['type'] == 'POSITION'
-    assert position_events[1]['value'] == 2
+    assert position_car_status_events[1]['timestamp'] == 1541693115862
+    assert position_car_status_events[1]['carIndex'] == 2
+    assert position_car_status_events[1]['type'] == 'POSITION'
+    assert position_car_status_events[1]['value'] == 2
 
-    assert position_events[2]['timestamp'] == 1541693115862
-    assert position_events[2]['carIndex'] == 0
-    assert position_events[2]['type'] == 'POSITION'
-    assert position_events[2]['value'] == 3
+    assert position_car_status_events[2]['timestamp'] == 1541693115862
+    assert position_car_status_events[2]['carIndex'] == 0
+    assert position_car_status_events[2]['type'] == 'POSITION'
+    assert position_car_status_events[2]['value'] == 3
 
-    assert position_events[3]['timestamp'] == 1541693116862
-    assert position_events[3]['carIndex'] == 0
-    assert position_events[3]['type'] == 'POSITION'
-    assert position_events[3]['value'] == 2
+    assert position_car_status_events[3]['timestamp'] == 1541693116862
+    assert position_car_status_events[3]['carIndex'] == 0
+    assert position_car_status_events[3]['type'] == 'POSITION'
+    assert position_car_status_events[3]['value'] == 2
 
-    assert position_events[4]['timestamp'] == 1541693116862
-    assert position_events[4]['carIndex'] == 2
-    assert position_events[4]['type'] == 'POSITION'
-    assert position_events[4]['value'] == 3
+    assert position_car_status_events[4]['timestamp'] == 1541693116862
+    assert position_car_status_events[4]['carIndex'] == 2
+    assert position_car_status_events[4]['type'] == 'POSITION'
+    assert position_car_status_events[4]['value'] == 3
+
+    assert len(race_events) == 1
+    assert race_events[0]['timestamp'] == 1541693116862
+    assert race_events[0]['text'] == 'Car 1 races ahead of Car 3 in a dramatic overtake.'
