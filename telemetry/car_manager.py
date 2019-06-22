@@ -61,6 +61,5 @@ class CarManager():
         self.__raise_event(event)
 
     def __raise_event(self, event):
-        print(event)
         for c in self.__car_status_event_callbacks:
             c(event)

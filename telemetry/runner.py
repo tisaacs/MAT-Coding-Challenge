@@ -12,7 +12,7 @@ from track_lookup import TrackLookup
 car_manager = None
 logger = None
 env = None
-mqtt_client = None
+client = None
 
 def main():
     read_envs()
@@ -22,15 +22,19 @@ def main():
 
     initialise()
 
+    global client
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
+
+    car_manager.subscribe_to_car_status_events(new_car_status_event)
 
     mqtt_address = env['MQTT_ADDRESS']
     mqtt_keepalive = int(env['MQTT_KEEPALIVE'])
 
     logger.info(f'Connecting to MQTT address {mqtt_address} and keepalive {mqtt_keepalive}')
 
+    # client.enable_logger(logger)
     client.connect(mqtt_address, keepalive=mqtt_keepalive)
 
     client.loop_forever()
@@ -65,6 +69,12 @@ def on_message(client, userdata, msg):
     # logger.debug('Received new message:\n\n' + msg)
     data = json.loads(msg.payload)
     car_manager.new_car_data(data)
+
+
+def new_car_status_event(event):
+    topic = env['CAR_STATUS_TOPIC']
+    data = json.dumps(event)
+    client.publish(topic, data)
 
 def setup_logging(log_to_file):
     global logger
