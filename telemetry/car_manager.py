@@ -12,10 +12,12 @@ class CarManager():
         self.cars = []
         self.__car_status_event_callbacks = []
         self.__race_event_callbacks = []
+        self.__last_position_event_for_car_map = {}
 
         for i in range(number_of_cars):
             car = Car(i, track_lookup)
             self.cars.append(car)
+            self.__last_position_event_for_car_map[i] = None
 
     def new_car_data(self, json):
         # We can only calculate positions when all cars have had an update
@@ -40,24 +42,18 @@ class CarManager():
 
             car.positions.appendleft(position)
 
-            # Raise initial position events
-            if len(car.positions) == 1:
-                self.__raise_position_event(car)
+            last_position = self.__last_position_event_for_car_map[car.index]
+
+            # Position is the same as last event
+            if car.positions[0] == last_position:
                 continue
 
-            if len(car.positions) != config.POSITION_COUNT:
-                continue
-
-            # If all positions are the same, nothing has changed so we don't want to raise an event
-            if car.positions[0] == car.positions[-1]:
-                continue
-
-            # Position must be 'stable' apart from the last item
-            positions_apart_from_last_item = list(car.positions)[:-1]
-            if all(x == car.positions[0] for x in positions_apart_from_last_item):
+            # Check position has been the same for the past N updates
+            if all(x == car.positions[0] for x in car.positions):
+                self.__last_position_event_for_car_map[car.index] = car.positions[0]
                 self.__raise_position_event(car)
 
-                if car.positions[0] < car.positions[-1]:
+                if last_position and car.positions[0] < last_position:
                     overtaken_car_index = cars_ordered[i + 1].index
                     self.__raise_overtake_event(car.index, overtaken_car_index, car.timestamps[0])
 

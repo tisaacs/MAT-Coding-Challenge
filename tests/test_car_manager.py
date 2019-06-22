@@ -22,7 +22,7 @@ def setup_function():
     # Only use 2 position values to calculate speed to simplify tests
     config.SPEED_AVERAGE_COUNT = 2
 
-    config.POSITION_COUNT = 3
+    config.POSITION_COUNT = 2
 
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
@@ -105,7 +105,6 @@ def test_should_update_car_positions(track_lookup_mock):
     manager.subscribe_to_car_status_events(car_status_event_callback)
     manager.subscribe_to_race_events(race_event_callback)
 
-    config.POSITION_COUNT = 3
 
     for c in manager.cars:
         c.timestamps.appendleft(datetime.utcfromtimestamp(1541693115862 / 1000))
@@ -114,8 +113,8 @@ def test_should_update_car_positions(track_lookup_mock):
     manager.cars[1].progress = 1.2
     manager.cars[2].progress = 0.8
 
-    # Positions must be the same for 3 updates to generate event to smooth noise
-    manager.update_positions()
+    # Positions must be the same for 2 updates to generate event
+    # This is because average to smooth noise
     manager.update_positions()
     manager.update_positions()
 
@@ -135,17 +134,25 @@ def test_should_update_car_positions(track_lookup_mock):
 
     manager.update_positions()
     manager.update_positions()
-    manager.update_positions()
 
     assert manager.cars[0].positions[0] == 2
     assert manager.cars[1].positions[0] == 1
     assert manager.cars[2].positions[0] == 3
 
+    # Generate 'blip' by changing progress and then changing it back
+
     manager.cars[0].progress = 0.4
     manager.cars[1].progress = 1.2
     manager.cars[2].progress = 0.8
 
-    # Check event isn't generated
+    manager.update_positions()
+
+    manager.cars[0].progress = 1.4
+    manager.cars[1].progress = 1.8
+    manager.cars[2].progress = 1.3
+
+    # Check events aren't generated when the 'blip' filters through
+    manager.update_positions()
     manager.update_positions()
 
     position_car_status_events = [x for x in car_status_events if x['type'] == 'POSITION']
