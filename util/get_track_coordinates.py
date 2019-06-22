@@ -1,3 +1,13 @@
+# This script transforms openstreetmap geojson data to a list of coordinates.
+#
+# It takes two command line arguments:
+# - A path to a file containing the relevant way_ids
+# - A path to the geojson file
+#
+# Each way ID represents part of a road, including racetracks.
+# Therefore, to get the coordinates for a racetrack we simply need to know the way_ids.
+
+
 import json
 import re
 import sys
