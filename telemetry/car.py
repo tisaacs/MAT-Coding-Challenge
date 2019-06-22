@@ -10,10 +10,12 @@ class Car():
         self.index = car_index
         self.coordinates = deque(maxlen=config.SPEED_AVERAGE_COUNT)
         self.speed_metres_per_second = 0
-        self.progress = 0
+        self.lap_progress = 0
+        self.laps = 0
         self.positions = deque(maxlen=config.POSITION_COUNT)
         self.timestamps =  deque(maxlen=config.SPEED_AVERAGE_COUNT)
         self.__track_lookup = track_lookup
+        self.__last_lap_progress = 0
 
     def update(self, json):
         if json['carIndex'] != self.index:
@@ -30,7 +32,12 @@ class Car():
         t = datetime.utcfromtimestamp(json['timestamp'] / 1000.0)
         self.timestamps.appendleft(t)
 
-        self.progress += self.__track_lookup.get_track_percentage(self.coordinates[0])
+        self.lap_progress = self.__track_lookup.get_track_percentage(self.coordinates[0])
+
+        if self.__last_lap_progress - self.lap_progress > 0.5:
+            self.laps += 1
+
+        self.__last_lap_progress = self.lap_progress
 
         queue_full = len(self.coordinates) == config.SPEED_AVERAGE_COUNT
         if not queue_full:

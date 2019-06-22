@@ -33,7 +33,7 @@ class CarManager():
             self.update_positions()
 
     def update_positions(self):
-        cars_ordered = sorted(self.cars, key=lambda x: x.progress, reverse=True)
+        cars_ordered = sorted(self.cars, key=lambda x: x.laps + x.lap_progress, reverse=True)
         for i, car in enumerate(cars_ordered):
             position = i + 1
 

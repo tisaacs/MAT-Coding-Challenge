@@ -59,7 +59,7 @@ def test_update(track_lookup_mock):
 
     assert car.coordinates[0] == (51.349937311969725, -0.544958142167281)
     assert car.timestamps[0] == datetime(2018, 11, 8, 16, 5, 14, 862000)
-    assert car.progress == 0.1
+    assert car.lap_progress == 0.1
     assert len(car.coordinates) == 1
     assert len(car.timestamps) == 1
 
@@ -69,7 +69,7 @@ def test_update(track_lookup_mock):
 
     assert car.coordinates[0] == (51.359937311969725, -0.544958142167281)
     assert car.timestamps[0] == datetime(2018, 11, 8, 16, 5, 15, 862000)
-    assert isclose(car.progress, 0.3)
+    assert car.lap_progress == 0.2
     assert len(car.coordinates) == 2
     assert len(car.timestamps) == 2
 
@@ -93,6 +93,35 @@ def test_update(track_lookup_mock):
     assert len(car.timestamps) == 3
 
     assert round(car.speed_metres_per_second) == 2225
+
+
+@mock.patch('telemetry.track_lookup.TrackLookup')
+def test_should_keep_track_of_laps(track_lookup_mock):
+    car = Car(1, track_lookup_mock)
+
+    # Json not relevant, so just pass it 'dummy' data
+    json = {
+        "timestamp": 1541693117862,
+        "carIndex": 1,
+        "location": {
+            "lat": 51.399937311969725,
+            "long": -0.544958142167281
+        }
+    }
+
+    track_lookup_mock.get_track_percentage.return_value = 0.9
+
+    car.update(json)
+
+    assert car.lap_progress == 0.9
+    assert car.laps == 0
+
+    track_lookup_mock.get_track_percentage.return_value = 0.1
+
+    car.update(json)
+
+    assert car.lap_progress == 0.1
+    assert car.laps == 1
 
 
 def test_should_raise_exception_if_given_incorrect_data():

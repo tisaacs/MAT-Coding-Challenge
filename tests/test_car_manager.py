@@ -109,9 +109,12 @@ def test_should_update_car_positions(track_lookup_mock):
     for c in manager.cars:
         c.timestamps.appendleft(datetime.utcfromtimestamp(1541693115862 / 1000))
 
-    manager.cars[0].progress = 0.4
-    manager.cars[1].progress = 1.2
-    manager.cars[2].progress = 0.8
+    manager.cars[0].lap_progress = 0.4
+    manager.cars[1].lap_progress = 0.9
+    manager.cars[2].lap_progress = 0.8
+    manager.cars[0].laps = 0
+    manager.cars[1].laps = 0
+    manager.cars[2].laps = 0
 
     # Positions must be the same for 2 updates to generate event
     # This is because average to smooth noise
@@ -125,9 +128,12 @@ def test_should_update_car_positions(track_lookup_mock):
     assert manager.cars[1].positions[1] == 1
     assert manager.cars[2].positions[1] == 2
 
-    manager.cars[0].progress = 1.4
-    manager.cars[1].progress = 1.8
-    manager.cars[2].progress = 1.3
+    manager.cars[0].lap_progress = 0.4
+    manager.cars[1].lap_progress = 0.8
+    manager.cars[2].lap_progress = 0.9
+    manager.cars[0].laps = 1
+    manager.cars[1].laps = 1
+    manager.cars[2].laps = 0
 
     for c in manager.cars:
         c.timestamps.appendleft(datetime.utcfromtimestamp(1541693116862 / 1000))
@@ -139,17 +145,23 @@ def test_should_update_car_positions(track_lookup_mock):
     assert manager.cars[1].positions[0] == 1
     assert manager.cars[2].positions[0] == 3
 
-    # Generate 'blip' by changing progress and then changing it back
+    # Generate 'blip' by changing lap_progress and then changing it back
 
-    manager.cars[0].progress = 0.4
-    manager.cars[1].progress = 1.2
-    manager.cars[2].progress = 0.8
+    manager.cars[0].lap_progress = 0.95
+    manager.cars[1].lap_progress = 0.9
+    manager.cars[2].lap_progress = 0.2
+    manager.cars[0].laps = 1
+    manager.cars[1].laps = 1
+    manager.cars[2].laps = 1
 
     manager.update_positions()
 
-    manager.cars[0].progress = 1.4
-    manager.cars[1].progress = 1.8
-    manager.cars[2].progress = 1.3
+    manager.cars[0].lap_progress = 0.1
+    manager.cars[1].lap_progress = 0.2
+    manager.cars[2].lap_progress = 0.8
+    manager.cars[0].laps = 2
+    manager.cars[1].laps = 2
+    manager.cars[2].laps = 1
 
     # Check events aren't generated when the 'blip' filters through
     manager.update_positions()
