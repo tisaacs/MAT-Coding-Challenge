@@ -24,8 +24,8 @@ class CarManager():
 
         self.__raise_speed_event(self.cars[index])
 
-        received_all_updates = all(
-            len(x.timestamps) and x.timestamps[0] - self.cars[0].timestamps[0] < UPDATE_TOLERANCE for x in self.cars)
+        received_all_updates = all(x.timestamps and x.timestamps[0] - self.cars[0].timestamps[0] < UPDATE_TOLERANCE
+                                   for x in self.cars)
         if received_all_updates:
             self.update_positions()
 
