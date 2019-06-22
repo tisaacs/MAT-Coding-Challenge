@@ -1,4 +1,3 @@
-import context
 from telemetry.track_lookup import TrackLookup
 
 lookup = None

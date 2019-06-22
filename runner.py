@@ -6,8 +6,8 @@ import os
 import sys
 
 import paho.mqtt.client as mqtt
-from car_manager import CarManager
-from track_lookup import TrackLookup
+from telemetry.car_manager import CarManager
+from telemetry.track_lookup import TrackLookup
 
 car_manager = None
 logger = None
@@ -114,3 +114,7 @@ def read_envs():
                 value = split[1]
 
                 env[key] = value
+
+
+if __name__ == '__main__':
+    main()
