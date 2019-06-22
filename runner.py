@@ -91,10 +91,14 @@ def setup_logging(log_to_file):
     nowstring = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file_name = 'telemetry_{0}.log'.format(nowstring)
 
+    dir_path = './logs'
+    if not os.path.isdir(dir_path):
+        os.mkdir(dir_path)
+
     logger = logging.getLogger('telemetry')
     log_level = env['LOG_LEVEL']
     logger.setLevel(log_level)
-    fileHandler = logging.FileHandler('./logs/{0}'.format(log_file_name))
+    fileHandler = logging.FileHandler(f'{dir_path}/{log_file_name}')
     stdoutHandler = logging.StreamHandler(sys.stdout)
     fileHandler.setFormatter(logging.Formatter(log_format))
     stdoutHandler.setFormatter(logging.Formatter(log_format))
