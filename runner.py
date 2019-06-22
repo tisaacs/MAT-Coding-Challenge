@@ -14,6 +14,7 @@ logger = None
 env = None
 client = None
 
+
 def main():
     read_envs()
     setup_logging(log_to_file=True)
@@ -34,7 +35,6 @@ def main():
 
     logger.info(f'Connecting to MQTT address {mqtt_address} and keepalive {mqtt_keepalive}')
 
-    # client.enable_logger(logger)
     client.connect(mqtt_address, keepalive=mqtt_keepalive)
 
     client.loop_forever()
@@ -66,7 +66,6 @@ def on_connect(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    # logger.debug('Received new message:\n\n' + msg)
     data = json.loads(msg.payload)
     car_manager.new_car_data(data)
 
@@ -75,6 +74,7 @@ def new_car_status_event(event):
     topic = env['CAR_STATUS_TOPIC']
     data = json.dumps(event)
     client.publish(topic, data)
+
 
 def setup_logging(log_to_file):
     global logger
