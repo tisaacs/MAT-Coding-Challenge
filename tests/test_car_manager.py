@@ -1,12 +1,12 @@
 from datetime import datetime
 from unittest import mock
 
-from telemetry.car import Car
+import telemetry
 from telemetry.car_manager import CarManager
+from telemetry.car import *
 
 # So we can test when the callback is triggered
 events = []
-
 
 def event_callback(event):
     events.append(event)
@@ -14,6 +14,8 @@ def event_callback(event):
 
 def setup_function():
     events.clear()
+    # Only use 2 position values to calculate speed to simplify tests
+    telemetry.car.SPEED_AVERAGE_COUNT = 2
 
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
@@ -96,7 +98,7 @@ def test_should_update_car_positions(track_lookup_mock):
     manager.subscribe_to_car_status_events(event_callback)
 
     for c in manager.cars:
-        c.timestamp = datetime.utcfromtimestamp(1541693115862 / 1000)
+        c.timestamps.appendleft(datetime.utcfromtimestamp(1541693115862 / 1000))
 
     manager.cars[0].progress = 0.4
     manager.cars[1].progress = 1.2
@@ -113,7 +115,7 @@ def test_should_update_car_positions(track_lookup_mock):
     manager.cars[2].progress = 1.3
 
     for c in manager.cars:
-        c.timestamp = datetime.utcfromtimestamp(1541693116862 / 1000)
+        c.timestamps.appendleft(datetime.utcfromtimestamp(1541693116862 / 1000))
 
     manager.update_positions()
 

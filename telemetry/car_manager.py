@@ -1,7 +1,7 @@
 from datetime import timedelta
 
-import helper as helper
-from car import Car
+from telemetry.helper import get_timestamp_in_correct_format
+from telemetry.car import Car
 
 UPDATE_TOLERANCE = timedelta(milliseconds=300)  # Processes position values when all timestamps within this value
 
@@ -23,7 +23,7 @@ class CarManager():
 
         self.__raise_speed_event(self.cars[index])
 
-        received_all_updates = all(x.timestamp and x.timestamp - self.cars[0].timestamp < UPDATE_TOLERANCE
+        received_all_updates = all(len(x.timestamps) and x.timestamps[0] - self.cars[0].timestamps[0] < UPDATE_TOLERANCE
                                    for x in self.cars)
         if received_all_updates:
             self.update_positions()
@@ -42,7 +42,7 @@ class CarManager():
 
     def __raise_speed_event(self, car):
         event = {
-            'timestamp': helper.get_timestamp_in_correct_format(car.timestamp),
+            'timestamp': get_timestamp_in_correct_format(car.timestamps[0]),
             'carIndex': car.index,
             'type': 'SPEED',
             'value': car.speed_metres_per_second,
@@ -52,7 +52,7 @@ class CarManager():
 
     def __raise_position_event(self, car):
         event = {
-            'timestamp': helper.get_timestamp_in_correct_format(car.timestamp),
+            'timestamp': get_timestamp_in_correct_format(car.timestamps[0]),
             'carIndex': car.index,
             'type': 'POSITION',
             'value': car.position
