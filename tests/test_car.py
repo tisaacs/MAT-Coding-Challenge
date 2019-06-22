@@ -4,13 +4,14 @@ from unittest import mock
 
 import pytest
 import telemetry
-from telemetry.car import *
+import telemetry.config as config
+from telemetry.car import Car
 from telemetry.track_lookup import TrackLookup
 
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
 def test_update(track_lookup_mock):
-    telemetry.car.SPEED_AVERAGE_COUNT = 3
+    config.SPEED_AVERAGE_COUNT = 3
 
     car = Car(1, track_lookup_mock)
 

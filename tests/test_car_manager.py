@@ -2,6 +2,7 @@ from datetime import datetime
 from unittest import mock
 
 import telemetry
+import telemetry.config
 from telemetry.car_manager import CarManager
 from telemetry.car import *
 
@@ -15,7 +16,9 @@ def event_callback(event):
 def setup_function():
     events.clear()
     # Only use 2 position values to calculate speed to simplify tests
-    telemetry.car.SPEED_AVERAGE_COUNT = 2
+    config.SPEED_AVERAGE_COUNT = 2
+
+    config.POSITION_COUNT = 3
 
 
 @mock.patch('telemetry.track_lookup.TrackLookup')
@@ -97,6 +100,8 @@ def test_should_update_car_positions(track_lookup_mock):
     manager = CarManager(3, track_lookup_mock)
     manager.subscribe_to_car_status_events(event_callback)
 
+    config.POSITION_COUNT = 3
+
     for c in manager.cars:
         c.timestamps.appendleft(datetime.utcfromtimestamp(1541693115862 / 1000))
 
@@ -104,11 +109,17 @@ def test_should_update_car_positions(track_lookup_mock):
     manager.cars[1].progress = 1.2
     manager.cars[2].progress = 0.8
 
+    # Positions must be the same for 3 updates to generate event to smooth noise
+    manager.update_positions()
+    manager.update_positions()
     manager.update_positions()
 
-    assert manager.cars[0].position == 3
-    assert manager.cars[1].position == 1
-    assert manager.cars[2].position == 2
+    assert manager.cars[0].positions[0] == 3
+    assert manager.cars[1].positions[0] == 1
+    assert manager.cars[2].positions[0] == 2
+    assert manager.cars[0].positions[1] == 3
+    assert manager.cars[1].positions[1] == 1
+    assert manager.cars[2].positions[1] == 2
 
     manager.cars[0].progress = 1.4
     manager.cars[1].progress = 1.8
@@ -118,12 +129,25 @@ def test_should_update_car_positions(track_lookup_mock):
         c.timestamps.appendleft(datetime.utcfromtimestamp(1541693116862 / 1000))
 
     manager.update_positions()
+    manager.update_positions()
+    manager.update_positions()
 
-    assert manager.cars[0].position == 2
-    assert manager.cars[1].position == 1
-    assert manager.cars[2].position == 3
+    assert manager.cars[0].positions[0] == 2
+    assert manager.cars[1].positions[0] == 1
+    assert manager.cars[2].positions[0] == 3
+
+    manager.cars[0].progress = 0.4
+    manager.cars[1].progress = 1.2
+    manager.cars[2].progress = 0.8
+
+    # Check event isn't generated
+    manager.update_positions()
 
     position_events = [x for x in events if x['type'] == 'POSITION']
+
+    for i in position_events:
+        print(i)
+    assert len(position_events) == 5
 
     assert position_events[0]['timestamp'] == 1541693115862
     assert position_events[0]['carIndex'] == 1

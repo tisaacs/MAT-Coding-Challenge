@@ -1,7 +1,8 @@
 from datetime import timedelta
 
-from telemetry.helper import get_timestamp_in_correct_format
+from telemetry import config
 from telemetry.car import Car
+from telemetry.helper import get_timestamp_in_correct_format
 
 UPDATE_TOLERANCE = timedelta(milliseconds=300)  # Processes position values when all timestamps within this value
 
@@ -23,18 +24,36 @@ class CarManager():
 
         self.__raise_speed_event(self.cars[index])
 
-        received_all_updates = all(len(x.timestamps) and x.timestamps[0] - self.cars[0].timestamps[0] < UPDATE_TOLERANCE
-                                   for x in self.cars)
+        received_all_updates = all(
+            len(x.timestamps) and x.timestamps[0] - self.cars[0].timestamps[0] < UPDATE_TOLERANCE for x in self.cars)
         if received_all_updates:
             self.update_positions()
 
     def update_positions(self):
         cars_ordered = sorted(self.cars, key=lambda x: x.progress, reverse=True)
         for i, car in enumerate(cars_ordered):
-            car.last_position = car.position
-            car.position = i + 1
+            position = i + 1
 
-            if car.position != car.last_position:
+            if len(car.positions) == config.POSITION_COUNT:
+                car.positions.pop()
+
+            car.positions.appendleft(position)
+
+            # Raise initial position events
+            if len(car.positions) == 1:
+                self.__raise_position_event(car)
+                continue
+
+            if len(car.positions) != config.POSITION_COUNT:
+                continue
+
+            # If all positions are the same, nothing has changed so we don't want to raise an event
+            if car.positions[0] == car.positions[-1]:
+                continue
+
+            # Position must be 'stable' apart from the last item
+            positions_apart_from_last_item = list(car.positions)[:-1]
+            if all(x == car.positions[0] for x in positions_apart_from_last_item):
                 self.__raise_position_event(car)
 
     def subscribe_to_car_status_events(self, callback):
@@ -55,7 +74,7 @@ class CarManager():
             'timestamp': get_timestamp_in_correct_format(car.timestamps[0]),
             'carIndex': car.index,
             'type': 'POSITION',
-            'value': car.position
+            'value': car.positions[0]
         }
 
         self.__raise_event(event)
